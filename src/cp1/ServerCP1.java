@@ -98,14 +98,13 @@ public class ServerCP1 {
         // get encrypted file from client
         utils.getMessage(stringIn);
         byte[] encryptedFile = utils.getBytes(stringIn, byteIn);
-        System.out.println(Arrays.toString(encryptedFile));
 
         // create cipher object (decrypt), initialize with private key
         Cipher rsaCipherDecrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipherDecrypt.init(Cipher.DECRYPT_MODE, privateKey);
 
         // decrypt and save file
-        decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, "src/output2.txt");
+        decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, "src/output3.txt");
     }
 
     private static PrivateKey loadPrivateKey() throws Exception {
@@ -147,7 +146,7 @@ public class ServerCP1 {
         // create new file and write to file
         FileOutputStream fileOut = new FileOutputStream(fileName);
         fileOut.write(decryptedFile, 0, decryptedFile.length);
-        System.out.println("File registered into system.");
+        System.out.println("File save into server.");
     }
 
 }

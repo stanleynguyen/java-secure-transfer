@@ -3,10 +3,15 @@ package cp1;
 import javax.crypto.Cipher;
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+
+import static java.nio.file.Files.*;
 
 /**
  * Created by vivek on 9/4/17.
@@ -92,8 +97,7 @@ public class ClientCP1 {
             rsaCipherEncrypt.init(Cipher.ENCRYPT_MODE, serverPublicKey);
 
             // load file and encrypt to transmit
-            byte[] encryptedFile = loadAndEncryptFile("src/smallFile.txt", rsaCipherEncrypt);
-            System.out.println(Arrays.toString(encryptedFile));
+            byte[] encryptedFile = loadAndEncryptFile("src/largeFile.txt", rsaCipherEncrypt);
             // send encrypted file
             utils.sendBytes(encryptedFile, stringOut, byteOut);
 
@@ -102,19 +106,9 @@ public class ClientCP1 {
         }
     }
 
-    private static byte[] loadTransmitFile() throws Exception {
-        File transmitFile = new File("src/medianFile.txt");
-        byte[] fileByteArray = new byte[(int)transmitFile.length()];
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(transmitFile));
-        bufferedInputStream.read(fileByteArray, 0, fileByteArray.length);
-        return fileByteArray;
-    }
-
     private static byte[] loadAndEncryptFile(String fileName, Cipher rsaCipherEncrypt) throws Exception {
-        File transmitFile = new File(fileName);
-        byte[] fileByteArray = new byte[(int)transmitFile.length()];
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(transmitFile));
-        bufferedInputStream.read(fileByteArray, 0, fileByteArray.length);
+        Path filePath = Paths.get(fileName);
+        byte[] fileByteArray = readAllBytes(filePath);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
