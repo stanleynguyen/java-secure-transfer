@@ -1,4 +1,4 @@
-package cp1;
+package cp2;
 
 import javax.crypto.Cipher;
 import java.io.*;
@@ -13,10 +13,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 import common.utils;
 import common.CertAndKey;
 
-public class ServerCP1 {
+public class ServerCP2 {
     private static final int NTHREADS = 5;
     private static ExecutorService executorService = new ScheduledThreadPoolExecutor(NTHREADS);
 
@@ -93,10 +95,15 @@ public class ServerCP1 {
         utils.getMessage(stringIn);
         byte[] certByteArray = CertAndKey.loadSignedCertificate();
         utils.sendBytes(certByteArray, stringOut, byteOut, stringIn);
-
+        
+        System.out.println("Handshaking");
         // create cipher object (decrypt), initialize with private key
         Cipher rsaCipherDecrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipherDecrypt.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] encryptedSession = utils.getBytes(stringIn, byteIn, stringOut);
+        byte[] decryptedSession = rsaCipherDecrypt.doFinal(encryptedSession);
+        SecretKey sessionKey = new SecretKeySpec(decryptedSession, "AES");
+        utils.sendMessage(stringOut, "Got Session Key!", IDENTITY);
 
         /* START OF FILE TRANSFER */
 
@@ -106,9 +113,10 @@ public class ServerCP1 {
         String fileName = "upload/" + utils.getMessage(stringIn).substring(9);
         byte[] encryptedFile = utils.getBytes(stringIn, byteIn, stringOut);
 
-
         // decrypt and save file
-        utils.decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, fileName);
+        Cipher aesDecrypter = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        aesDecrypter.init(Cipher.DECRYPT_MODE, sessionKey);
+        utils.decryptAndSaveFile(encryptedFile, aesDecrypter, fileName);
 
         // inform client of successful file transfer
         utils.sendMessage(stringOut, "File Transfer success!", IDENTITY);

@@ -1,9 +1,8 @@
-package cp1;
+package cp2;
 
 import javax.crypto.Cipher;
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.PublicKey;
@@ -12,11 +11,10 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.crypto.*;
 import common.utils;
 
-import static java.nio.file.Files.*;
-
-public class ClientCP1 {
+public class ClientCP2 {
     private static final String SERVER_NAME = "localhost";
     private static final int SERVER_PORT = 4321;
     private static final int IDENTITY = 1; // client
@@ -94,16 +92,22 @@ public class ClientCP1 {
             }
 
             System.out.println("Server verification successful.");
-            utils.sendMessage(stringOut, "Ready to transmit file", IDENTITY);
-
+            System.out.println("Starting session");
+            SecretKey sessionKey = generateAesKey();
+            byte[] encodedKey = sessionKey.getEncoded();
             // create cipher object (encrypt), and initialize with public key
             Cipher rsaCipherEncrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             rsaCipherEncrypt.init(Cipher.ENCRYPT_MODE, serverPublicKey);
-
+            byte[] encryptedSession = rsaCipherEncrypt.doFinal(encodedKey);
+            utils.sendBytes(encryptedSession, stringOut, byteOut, stringIn);
+            utils.getMessage(stringIn);
+            
+            utils.sendMessage(stringOut, "Ready to transmit file", IDENTITY);
             /* START OF FILE TRANSFER */
             System.out.println("Initializing File transfer...");
             utils.getMessage(stringIn);
-
+            Cipher aesEncrypter = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            aesEncrypter.init(Cipher.ENCRYPT_MODE, sessionKey);
             // get file name from path and send to server
             Pattern p = Pattern.compile("[^\\/\\\\]+$");
             Matcher m = p.matcher(args[0]);
@@ -117,7 +121,7 @@ public class ClientCP1 {
             utils.sendMessage(stringOut, fileName, IDENTITY);
 
             // load file and encrypt to transmit
-            byte[] encryptedFile = utils.loadAndEncryptFile(args[0], rsaCipherEncrypt);
+            byte[] encryptedFile = utils.loadAndEncryptFile(args[0], aesEncrypter);
 
             // send encrypted file
             utils.sendBytes(encryptedFile, stringOut, byteOut, stringIn);
@@ -131,5 +135,12 @@ public class ClientCP1 {
             e.printStackTrace();
         }
     }
-
+    
+    private static SecretKey generateAesKey() throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(128);
+        SecretKey key = keyGen.generateKey();
+        return key;
+    }
+    
 }
