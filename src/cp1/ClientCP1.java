@@ -91,16 +91,17 @@ public class ClientCP1 {
 
             /* START OF FILE TRANSFER */
             System.out.println("Initializing File transfer...");
-
+            utils.getMessage(stringIn);
+            utils.sendMessage(stringOut, args[0], IDENTITY);
             // create cipher object (encrypt), and initialize with public key
             Cipher rsaCipherEncrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             rsaCipherEncrypt.init(Cipher.ENCRYPT_MODE, serverPublicKey);
 
             // load file and encrypt to transmit
-            byte[] encryptedFile = loadAndEncryptFile("largeFile.txt", rsaCipherEncrypt);
+            byte[] encryptedFile = loadAndEncryptFile(args[0], rsaCipherEncrypt);
             // send encrypted file
             utils.sendBytes(encryptedFile, stringOut, byteOut, stringIn);
-
+            System.out.println("Done uploading file!");
         } catch (Exception e) {
             e.printStackTrace();
         }

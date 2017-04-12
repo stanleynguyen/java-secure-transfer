@@ -97,6 +97,8 @@ public class ServerCP1 {
 
         // get encrypted file from client
         utils.getMessage(stringIn);
+        utils.sendMessage(stringOut, "Give me file name please!", IDENTITY);
+        String fileName = "upload/" + utils.getMessage(stringIn).substring(9);
         byte[] encryptedFile = utils.getBytes(stringIn, byteIn, stringOut);
 
         // create cipher object (decrypt), initialize with private key
@@ -104,7 +106,7 @@ public class ServerCP1 {
         rsaCipherDecrypt.init(Cipher.DECRYPT_MODE, privateKey);
 
         // decrypt and save file
-        decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, "output3.txt");
+        decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, fileName);
     }
 
     private static PrivateKey loadPrivateKey() throws Exception {
