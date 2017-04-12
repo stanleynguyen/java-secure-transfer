@@ -23,3 +23,12 @@ hs_err_pid*
 
 # test files
 *.txt
+
+# java
+out/*
+.idea/*
+ps2.iml
+
+#mac
+.DS_Store
+
