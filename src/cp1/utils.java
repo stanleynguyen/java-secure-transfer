@@ -9,6 +9,16 @@ import java.util.Arrays;
  * Created by vivek on 9/4/17.
  */
 public class utils {
+    private static long start_time;
+
+    public static double tic(){
+        return start_time = System.nanoTime();
+    }
+
+    public static double toc(){
+        return (System.nanoTime()-start_time)/1000000000.0;
+    }
+
     public static void sendMessage(PrintWriter stringOut, String message, int Identity) {
         String to;
         String from;
@@ -41,15 +51,13 @@ public class utils {
     public static byte[] getBytes(BufferedReader stringIn, InputStream byteIn, PrintWriter stringOut) throws IOException {
         int byteLength = Integer.parseInt(stringIn.readLine());
 
-        // something is wrong here
         byte[] byteArray = new byte[byteLength];
         int offset = 0;
         int numRead = 0;
-        stringOut.println("ready"); // sinalling sender I'm ready to get bytes
+        stringOut.println("ready"); // signal sender I'm ready to get bytes
         stringOut.flush();
         while (offset < byteArray.length && (numRead = byteIn.read(byteArray, offset, byteArray.length - offset)) >= 0) {
             offset += numRead;
-            System.out.println(offset);
         }
         if (offset < byteArray.length) {
             System.out.println("File reception incomplete!");
@@ -64,4 +72,5 @@ public class utils {
         byteOut.write(byteArray, 0, byteArray.length);
         byteOut.flush();
     }
+
 }

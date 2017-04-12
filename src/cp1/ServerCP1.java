@@ -13,6 +13,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by vivek on 9/4/17.
@@ -95,22 +97,29 @@ public class ServerCP1 {
         byte[] certByteArray = loadSignedCertificate();
         utils.sendBytes(certByteArray, stringOut, byteOut, stringIn);
 
+        // create cipher object (decrypt), initialize with private key
+        Cipher rsaCipherDecrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        rsaCipherDecrypt.init(Cipher.DECRYPT_MODE, privateKey);
+
+        /* START OF FILE TRANSFER */
+
         // get encrypted file from client
         utils.getMessage(stringIn);
         utils.sendMessage(stringOut, "Give me file name please!", IDENTITY);
         String fileName = "upload/" + utils.getMessage(stringIn).substring(9);
         byte[] encryptedFile = utils.getBytes(stringIn, byteIn, stringOut);
 
-        // create cipher object (decrypt), initialize with private key
-        Cipher rsaCipherDecrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        rsaCipherDecrypt.init(Cipher.DECRYPT_MODE, privateKey);
 
         // decrypt and save file
         decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, fileName);
+
+        // inform client of successful file transfer
+        utils.sendMessage(stringOut, "File Transfer success!", IDENTITY);
+
     }
 
     private static PrivateKey loadPrivateKey() throws Exception {
-        Path privateKeyPath = Paths.get("privateServer.der");
+        Path privateKeyPath = Paths.get("assets/privateServer.der");
         byte[] privateKeyByteArray = Files.readAllBytes(privateKeyPath);
 
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyByteArray);
@@ -121,14 +130,15 @@ public class ServerCP1 {
     }
 
     private static byte[] loadSignedCertificate() throws Exception {
-        File certFile = new File("signedcert.crt");
+        File certFile = new File("assets/signedcert.crt");
         byte[] certByteArray = new byte[(int)certFile.length()];
         BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(certFile));
         bufferedInputStream.read(certByteArray, 0, certByteArray.length);
         return certByteArray;
     }
 
-    private static void decryptAndSaveFile(byte[] encryptedFile, Cipher rsaCipherDecrypt, String fileName) throws Exception {
+    private static void decryptAndSaveFile(byte[] encryptedFile, Cipher rsaCipherDecrypt, String fileName)
+            throws Exception {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         int count = 0;
         int encryptedFileLength = encryptedFile.length;
@@ -145,10 +155,15 @@ public class ServerCP1 {
         byte[] decryptedFile = byteArrayOutputStream.toByteArray();
         byteArrayOutputStream.close();
 
+        // create dir if it does not exist
+        File file = new File(fileName);
+        file.getParentFile().mkdirs();
+
         // create new file and write to file
         FileOutputStream fileOut = new FileOutputStream(fileName);
         fileOut.write(decryptedFile, 0, decryptedFile.length);
-        System.out.println("File save into server.");
+        System.out.println("File saved into server.");
     }
+
 
 }
