@@ -47,17 +47,17 @@ public class ClientCP1 {
             // send nonce
             byte[] nonce = utils.generateNonce();
             utils.sendMessage(stringOut, "Sending a 64 bit nonce, please verify your identity!", IDENTITY);
-            utils.sendBytes(nonce, stringOut, byteOut);
+            utils.sendBytes(nonce, stringOut, byteOut, stringIn);
 
             // receive encrypted nonce
-            byte[] encryptedNonce = utils.getBytes(stringIn, byteIn);
+            byte[] encryptedNonce = utils.getBytes(stringIn, byteIn, stringOut);
 
             // ask for signed CA certificate
             utils.sendMessage(stringOut, "Give me your signed CA certificate!", IDENTITY);
-            byte[] certByteArray = utils.getBytes(stringIn, byteIn);
+            byte[] certByteArray = utils.getBytes(stringIn, byteIn, stringOut);
 
             // load public key from CA certificate
-            InputStream inputStream = new FileInputStream("src/CA.crt");
+            InputStream inputStream = new FileInputStream("CA.crt");
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
             X509Certificate caCert = (X509Certificate) certificateFactory.generateCertificate(inputStream);
             PublicKey caPublicKey = caCert.getPublicKey();
@@ -97,9 +97,9 @@ public class ClientCP1 {
             rsaCipherEncrypt.init(Cipher.ENCRYPT_MODE, serverPublicKey);
 
             // load file and encrypt to transmit
-            byte[] encryptedFile = loadAndEncryptFile("src/largeFile.txt", rsaCipherEncrypt);
+            byte[] encryptedFile = loadAndEncryptFile("largeFile.txt", rsaCipherEncrypt);
             // send encrypted file
-            utils.sendBytes(encryptedFile, stringOut, byteOut);
+            utils.sendBytes(encryptedFile, stringOut, byteOut, stringIn);
 
         } catch (Exception e) {
             e.printStackTrace();

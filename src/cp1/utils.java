@@ -38,13 +38,15 @@ public class utils {
         return nonce;
     }
 
-    public static byte[] getBytes(BufferedReader stringIn, InputStream byteIn) throws IOException {
+    public static byte[] getBytes(BufferedReader stringIn, InputStream byteIn, PrintWriter stringOut) throws IOException {
         int byteLength = Integer.parseInt(stringIn.readLine());
 
         // something is wrong here
         byte[] byteArray = new byte[byteLength];
         int offset = 0;
         int numRead = 0;
+        stringOut.println("ready"); // sinalling sender I'm ready to get bytes
+        stringOut.flush();
         while (offset < byteArray.length && (numRead = byteIn.read(byteArray, offset, byteArray.length - offset)) >= 0) {
             offset += numRead;
             System.out.println(offset);
@@ -55,9 +57,10 @@ public class utils {
         return byteArray;
     }
 
-    public static void sendBytes(byte[] byteArray, PrintWriter stringOut,OutputStream byteOut) throws IOException {
+    public static void sendBytes(byte[] byteArray, PrintWriter stringOut,OutputStream byteOut, BufferedReader stringIn) throws IOException {
         stringOut.println(byteArray.length);
         stringOut.flush();
+        stringIn.readLine(); // wait for ready signal from receiver
         byteOut.write(byteArray, 0, byteArray.length);
         byteOut.flush();
     }

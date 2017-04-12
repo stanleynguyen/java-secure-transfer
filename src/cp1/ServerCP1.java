@@ -77,7 +77,7 @@ public class ServerCP1 {
 
         // get 64 bit nonce from client
         utils.getMessage(stringIn);
-        byte[] nonce = utils.getBytes(stringIn, byteIn);
+        byte[] nonce = utils.getBytes(stringIn, byteIn, stringOut);
 
         // load private key
         PrivateKey privateKey = loadPrivateKey();
@@ -88,27 +88,27 @@ public class ServerCP1 {
 
         // encrypt nonce and send to client
         byte[] encryptedNonce = rsaCipherEncrypt.doFinal(nonce);
-        utils.sendBytes(encryptedNonce, stringOut, byteOut);
+        utils.sendBytes(encryptedNonce, stringOut, byteOut, stringIn);
 
         // Send signed CA certificate to client
         utils.getMessage(stringIn);
         byte[] certByteArray = loadSignedCertificate();
-        utils.sendBytes(certByteArray, stringOut, byteOut);
+        utils.sendBytes(certByteArray, stringOut, byteOut, stringIn);
 
         // get encrypted file from client
         utils.getMessage(stringIn);
-        byte[] encryptedFile = utils.getBytes(stringIn, byteIn);
+        byte[] encryptedFile = utils.getBytes(stringIn, byteIn, stringOut);
 
         // create cipher object (decrypt), initialize with private key
         Cipher rsaCipherDecrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipherDecrypt.init(Cipher.DECRYPT_MODE, privateKey);
 
         // decrypt and save file
-        decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, "src/output3.txt");
+        decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, "output3.txt");
     }
 
     private static PrivateKey loadPrivateKey() throws Exception {
-        Path privateKeyPath = Paths.get("src/privateServer.der");
+        Path privateKeyPath = Paths.get("privateServer.der");
         byte[] privateKeyByteArray = Files.readAllBytes(privateKeyPath);
 
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyByteArray);
@@ -119,7 +119,7 @@ public class ServerCP1 {
     }
 
     private static byte[] loadSignedCertificate() throws Exception {
-        File certFile = new File("src/signedcert.crt");
+        File certFile = new File("signedcert.crt");
         byte[] certByteArray = new byte[(int)certFile.length()];
         BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(certFile));
         bufferedInputStream.read(certByteArray, 0, certByteArray.length);
