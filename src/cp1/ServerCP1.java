@@ -44,7 +44,8 @@ public class ServerCP1 {
                     @Override
                     public void run() {
                         try {
-                            handleClient(socket);
+                          if (args.length > 0) handleClient(socket, args[0]);
+                          else handleClient(socket, null);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -59,7 +60,7 @@ public class ServerCP1 {
         }
     }
 
-    private static void handleClient(Socket socket) throws Exception {
+    private static void handleClient(Socket socket, String outputDat) throws Exception {
         // channels for sending and receiving bytes
         OutputStream byteOut = socket.getOutputStream();
         InputStream byteIn = socket.getInputStream();
@@ -97,22 +98,33 @@ public class ServerCP1 {
         // create cipher object (decrypt), initialize with private key
         Cipher rsaCipherDecrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipherDecrypt.init(Cipher.DECRYPT_MODE, privateKey);
-
-        /* START OF FILE TRANSFER */
-
-        // get encrypted file from client
         utils.getMessage(stringIn);
+        
+        /* START OF FILE TRANSFER */
+        utils.tic();
+        // get encrypted file from client
         utils.sendMessage(stringOut, "Give me file name please!", IDENTITY);
         String fileName = "upload/" + utils.getMessage(stringIn).substring(9);
         byte[] encryptedFile = utils.getBytes(stringIn, byteIn, stringOut);
-
-
         // decrypt and save file
         utils.decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, fileName);
-
+        double timeTaken = utils.toc();
+        
+        if (outputDat != null) {
+          FileWriter fw = new FileWriter(outputDat, true);
+          BufferedWriter bw = new BufferedWriter(fw);
+          String content = Double.toString(timeTaken);
+          bw.write(content, 0, content.length());
+          bw.flush();
+          bw.newLine();
+          bw.flush();
+          bw.close();
+          fw.close();
+        }
+        
         // inform client of successful file transfer
         utils.sendMessage(stringOut, "File Transfer success!", IDENTITY);
-
+        
     }
 
 }

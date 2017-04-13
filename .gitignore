@@ -24,6 +24,9 @@ hs_err_pid*
 # test files
 *.txt
 
+#output files for plot
+*.dat
+
 # java
 out/*
 .idea/*
