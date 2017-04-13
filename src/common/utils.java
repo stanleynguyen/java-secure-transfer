@@ -10,6 +10,17 @@ import java.util.Arrays;
 import java.net.Socket;
 
 public class utils {
+
+    private static long start_time;
+
+    public static double tic(){
+        return start_time = System.nanoTime();
+    }
+
+    public static double toc(){
+        return (System.nanoTime()-start_time)/1000000000.0;
+    }
+
     public static void sendMessage(PrintWriter stringOut, String message, int Identity) {
         String to;
         String from;
