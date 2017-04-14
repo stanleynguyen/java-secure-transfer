@@ -53,7 +53,6 @@ public class utils {
     public static byte[] getBytes(BufferedReader stringIn, InputStream byteIn, PrintWriter stringOut) throws IOException {
         int byteLength = Integer.parseInt(stringIn.readLine());
 
-        // something is wrong here
         byte[] byteArray = new byte[byteLength];
         int offset = 0;
         int numRead = 0;

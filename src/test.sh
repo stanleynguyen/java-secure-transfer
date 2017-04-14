@@ -6,7 +6,7 @@ mkdir output
 touch $OUTPUT_FILE
 echo "# this is the output for $SERVER_CLASS" > $OUTPUT_FILE
 ( java $SERVER_CLASS $OUTPUT_FILE &  )
-for (( FILE_SIZE=0; FILE_SIZE<=3000000; FILE_SIZE+=50000 ))
+for (( FILE_SIZE=1; FILE_SIZE<=3000001; FILE_SIZE+=50000 ))
 do
   printf "$FILE_SIZE " >> $OUTPUT_FILE
   dd if=/dev/zero of=dummy.txt bs=$FILE_SIZE count=1
