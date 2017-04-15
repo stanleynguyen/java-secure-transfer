@@ -50,8 +50,8 @@ performance comparison
 
 ### Performance Comparison
 
-**Disclaimer**: All performance tests are done on a Mac Book 
-Pro 2017 with 2.0Ghz dual-core Intel i5 and 8GB Memory
+**Disclaimer**: All performance tests are done on a MacBook 
+Pro 2015 with 2.7Ghz dual-core Intel i5 and 16GB Memory
 
 #### Performance of CP1 
 
