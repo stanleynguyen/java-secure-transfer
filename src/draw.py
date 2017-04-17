@@ -43,7 +43,7 @@ def plot():
     plt.xlabel("Size of file (bytes)")
     plt.ylabel("Time taken to transfer (s)")
     if nplots > 1: 
-        plt.legend()
+        plt.legend(loc='upper left')
         plt.savefig('output/combined.png', bbox_inches='tight')
     else:
         plt.savefig('output/' + name + '.png', bbox_inches='tight')
