@@ -105,28 +105,19 @@ public class ClientCP1 {
             utils.getMessage(stringIn);
 
             // get file name from path and send to server
-            Pattern p = Pattern.compile("[^\\/\\\\]+$");
-            Matcher m = p.matcher(args[0]);
-            System.out.println(args[0]);
-            String fileName = null;
-            if (!m.find()) {
-                System.out.println("Could not parse file name from path");
-            }
-            fileName = m.group();
-            System.out.println(fileName);
+            String fileName = utils.compressFile(args[0]);
             utils.sendMessage(stringOut, fileName, IDENTITY);
-
             // load file and encrypt to transmit
-            byte[] encryptedFile = utils.loadAndEncryptFile(args[0], rsaCipherEncrypt);
+            byte[] encryptedFile = utils.loadAndEncryptFile(fileName, rsaCipherEncrypt);
 
             // send encrypted file
             utils.sendBytes(encryptedFile, stringOut, byteOut, stringIn);
             System.out.println("Done uploading file!");
-
             // receive confirmation message
             utils.getMessage(stringIn);
             utils.closeConnections(byteOut, byteIn, stringOut, stringIn, socket);
             System.out.println("Connections closed");
+            utils.cleanUpFile(fileName);
         } catch (Exception e) {
             e.printStackTrace();
         }

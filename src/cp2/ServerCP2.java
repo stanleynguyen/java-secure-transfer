@@ -118,7 +118,9 @@ public class ServerCP2 {
         aesDecrypter.init(Cipher.DECRYPT_MODE, sessionKey);
         utils.decryptAndSaveFile(encryptedFile, aesDecrypter, fileName);
         double timeTaken = utils.toc();
-        
+        // decompressing upload file
+        utils.decompressFile(fileName);
+        utils.cleanUpFile(fileName);
         // inform client of successful file transfer
         utils.sendMessage(stringOut, "File Transfer success!", IDENTITY);
 

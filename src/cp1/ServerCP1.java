@@ -109,6 +109,11 @@ public class ServerCP1 {
         // decrypt and save file
         utils.decryptAndSaveFile(encryptedFile, rsaCipherDecrypt, fileName);
         double timeTaken = utils.toc();
+        // decompress file
+        utils.decompressFile(fileName);
+        utils.cleanUpFile(fileName);
+        // inform client of successful file transfer
+        utils.sendMessage(stringOut, "File Transfer success!", IDENTITY);
         
         if (outputDat != null) {
           FileWriter fw = new FileWriter(outputDat, true);
@@ -121,10 +126,6 @@ public class ServerCP1 {
           bw.close();
           fw.close();
         }
-        
-        // inform client of successful file transfer
-        utils.sendMessage(stringOut, "File Transfer success!", IDENTITY);
-        
     }
 
 }

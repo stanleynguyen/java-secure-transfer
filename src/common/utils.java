@@ -8,6 +8,8 @@ import javax.crypto.*;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.net.Socket;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class utils {
 
@@ -135,5 +137,40 @@ public class utils {
         stringOut.close();
         stringIn.close();
         socket.close();
+    }
+    
+    public static String compressFile(String fileStr) throws IOException {
+        Pattern p = Pattern.compile("[^\\/\\\\]+$");
+        Matcher m = p.matcher(fileStr);
+        String fileName = null;
+        if (!m.find()) {
+            System.out.println("Could not parse file name from path");
+        }
+        fileName = m.group();
+        String dirName = fileStr.substring(0, fileStr.length() - fileName.length());
+        System.out.println(dirName);
+        if (dirName.length() == 0) dirName = ".";
+        String tarName = fileName + ".tar";
+        ProcessBuilder pb = new ProcessBuilder("tar", "-C", dirName, "-czf", tarName, fileName);
+        pb.start();
+        return tarName;
+    }
+    
+    public static void decompressFile(String fileName) throws IOException {
+      Pattern p = Pattern.compile("[^\\/\\\\]+$");
+      Matcher m = p.matcher(fileName);
+      String tarName = null;
+      if (!m.find()) {
+          System.out.println("Could not parse file name from path");
+      }
+      tarName = m.group();
+      System.out.println(tarName);
+      ProcessBuilder pb = new ProcessBuilder("tar", "-xzf", tarName, "-C", "upload");
+      pb.start();
+    }
+    
+    public static void cleanUpFile(String fileName) throws IOException {
+      ProcessBuilder pb = new ProcessBuilder("rm", fileName);
+      pb.start();
     }
 }

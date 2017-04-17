@@ -108,20 +108,12 @@ public class ClientCP2 {
             utils.getMessage(stringIn);
             Cipher aesEncrypter = Cipher.getInstance("AES/ECB/PKCS5Padding");
             aesEncrypter.init(Cipher.ENCRYPT_MODE, sessionKey);
-            // get file name from path and send to server
-            Pattern p = Pattern.compile("[^\\/\\\\]+$");
-            Matcher m = p.matcher(args[0]);
-            System.out.println(args[0]);
-            String fileName = null;
-            if (!m.find()) {
-                System.out.println("Could not parse file name from path");
-            }
-            fileName = m.group();
-            System.out.println(fileName);
-            utils.sendMessage(stringOut, fileName, IDENTITY);
+            // compress the file 
+            String tarName = utils.compressFile(args[0]);
+            utils.sendMessage(stringOut, tarName, IDENTITY);
 
             // load file and encrypt to transmit
-            byte[] encryptedFile = utils.loadAndEncryptFile(args[0], aesEncrypter);
+            byte[] encryptedFile = utils.loadAndEncryptFile(tarName, aesEncrypter);
 
             // send encrypted file
             utils.sendBytes(encryptedFile, stringOut, byteOut, stringIn);
@@ -131,6 +123,7 @@ public class ClientCP2 {
             utils.getMessage(stringIn);
             utils.closeConnections(byteOut, byteIn, stringOut, stringIn, socket);
             System.out.println("Connections closed");
+            utils.cleanUpFile(tarName);
         } catch (Exception e) {
             e.printStackTrace();
         }
