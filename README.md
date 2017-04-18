@@ -46,7 +46,11 @@ performance comparison
 
 ### Specification of Protocols
 
-*Insert diagrams*
+#### Space Sequence Diagrams
+
+![CP1 Diagram](documentation/CP1diagram.png)
+
+![CP2 Diagram](documentation/CP2diagram.png)
 
 ### Performance Comparison
 
