@@ -139,7 +139,7 @@ public class utils {
         socket.close();
     }
     
-    public static String compressFile(String fileStr) throws IOException {
+    public static String compressFile(String fileStr) throws IOException, InterruptedException {
         Pattern p = Pattern.compile("[^\\/\\\\]+$");
         Matcher m = p.matcher(fileStr);
         String fileName = null;
@@ -152,11 +152,12 @@ public class utils {
         if (dirName.length() == 0) dirName = ".";
         String tarName = fileName + ".tar";
         ProcessBuilder pb = new ProcessBuilder("tar", "-C", dirName, "-czf", tarName, fileName);
-        pb.start();
+        Process pro = pb.start();
+        pro.waitFor();
         return tarName;
     }
     
-    public static void decompressFile(String fileName) throws IOException {
+    public static void decompressFile(String fileName) throws IOException, InterruptedException {
       Pattern p = Pattern.compile("[^\\/\\\\]+$");
       Matcher m = p.matcher(fileName);
       String tarName = null;
@@ -165,12 +166,14 @@ public class utils {
       }
       tarName = m.group();
       System.out.println(tarName);
-      ProcessBuilder pb = new ProcessBuilder("tar", "-xzf", tarName, "-C", "upload");
-      pb.start();
+      ProcessBuilder pb = new ProcessBuilder("tar", "-xzf", fileName, "-C", "upload");
+      Process pro = pb.start();
+      pro.waitFor();
     }
     
-    public static void cleanUpFile(String fileName) throws IOException {
+    public static void cleanUpFile(String fileName) throws IOException, InterruptedException {
       ProcessBuilder pb = new ProcessBuilder("rm", fileName);
-      pb.start();
+      Process pro = pb.start();
+      pro.waitFor();
     }
 }
